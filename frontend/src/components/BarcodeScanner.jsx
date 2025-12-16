@@ -1,20 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 
 const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
-function BarcodeScanner({ onSuccess, onError }) {
+function BarcodeScanner({ onSuccess, onError, resetTrigger }) {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [fileName, setFileName] = useState(null);
 
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
-    if (!file) return;
+    console.log('File selected:', file?.name, file?.size, file?.type);
+    if (!file) {
+      console.log('No file selected');
+      return;
+    }
 
     try {
+      console.log('Starting upload...');
       setLoading(true);
       setFileName(file.name);
 
@@ -29,9 +34,11 @@ function BarcodeScanner({ onSuccess, onError }) {
         }
       );
 
+      console.log('Upload successful:', response.data);
       setResult(response.data.data);
       onSuccess();
     } catch (error) {
+      console.error('Upload error:', error);
       const errorMsg =
         error.response?.data?.error || "Failed to decode barcode";
       onError(errorMsg);
@@ -40,6 +47,13 @@ function BarcodeScanner({ onSuccess, onError }) {
       setLoading(false);
     }
   };
+
+  // Reset local state when resetTrigger changes
+  useEffect(() => {
+    // Always reset when resetTrigger changes (both true->false and false->true)
+    setResult(null);
+    setFileName(null);
+  }, [resetTrigger]);
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 border border-slate-200">
@@ -55,6 +69,7 @@ function BarcodeScanner({ onSuccess, onError }) {
           disabled={loading}
           className="hidden"
           id="barcode-input"
+          key={resetTrigger ? "reset" : "normal"}
         />
         <label htmlFor="barcode-input" className="cursor-pointer block">
           <svg

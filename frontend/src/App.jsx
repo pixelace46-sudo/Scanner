@@ -14,6 +14,7 @@ function App() {
   const [sessionData, setSessionData] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [resetTrigger, setResetTrigger] = useState(false)
 
   useEffect(() => {
     fetchSessionData()
@@ -49,6 +50,8 @@ function App() {
       if (response.ok) {
         setSessionData(null)
         setError(null)
+        // Trigger reset in all scanner components
+        setResetTrigger(prev => !prev)
         fetchSessionData()
       }
     } catch (err) {
@@ -75,10 +78,10 @@ function App() {
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <BarcodeScanner onSuccess={handleUploadSuccess} onError={handleUploadError} />
-          <PDF417Scanner onSuccess={handleUploadSuccess} onError={handleUploadError} />
-          <CheckbookScanner onSuccess={handleUploadSuccess} onError={handleUploadError} />
-          <CardScanner onSuccess={handleUploadSuccess} onError={handleUploadError} />
+          <BarcodeScanner onSuccess={handleUploadSuccess} onError={handleUploadError} resetTrigger={resetTrigger} />
+          <PDF417Scanner onSuccess={handleUploadSuccess} onError={handleUploadError} resetTrigger={resetTrigger} />
+          <CheckbookScanner onSuccess={handleUploadSuccess} onError={handleUploadError} resetTrigger={resetTrigger} />
+          <CardScanner onSuccess={handleUploadSuccess} onError={handleUploadError} resetTrigger={resetTrigger} />
         </div>
 
         <ReportSection sessionData={sessionData} onReset={handleReset} loading={loading} />

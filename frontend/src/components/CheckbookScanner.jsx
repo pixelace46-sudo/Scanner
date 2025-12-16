@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 
 const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
-function CheckbookScanner({ onSuccess, onError }) {
+function CheckbookScanner({ onSuccess, onError, resetTrigger }) {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [fileName, setFileName] = useState(null);
@@ -41,6 +41,13 @@ function CheckbookScanner({ onSuccess, onError }) {
     }
   };
 
+  // Reset local state when resetTrigger changes
+  useEffect(() => {
+    // Always reset when resetTrigger changes (both true->false and false->true)
+    setResult(null);
+    setFileName(null);
+  }, [resetTrigger]);
+
   return (
     <div className="bg-white rounded-lg shadow-md p-6 border border-slate-200">
       <h2 className="text-xl font-semibold text-slate-900 mb-4">
@@ -55,6 +62,7 @@ function CheckbookScanner({ onSuccess, onError }) {
           disabled={loading}
           className="hidden"
           id="checkbook-input"
+          key={resetTrigger ? "reset" : "normal"}
         />
         <label htmlFor="checkbook-input" className="cursor-pointer block">
           <svg
